@@ -133,7 +133,7 @@ namespace Aquarium
 
                     if ((MinimumNumberFish < index) & (index <= _fishes.Count))
                     {
-                        _fishes.RemoveAt(index);
+                        _fishes.RemoveAt(index - 1);
                         isCorrectNumber = false;
                     }
                     else
