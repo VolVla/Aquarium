@@ -14,22 +14,24 @@ namespace Aquarium
 
     class Aquarium
     {
-        private const int NumberAddFish = 1;
-        private const int NumberAddFishes = 2;
-        private const int NumberRemoveFish = 3;
-        private const int NumberRemoveFishes = 4;
-        private const int Exit = 5;
-        private const int MaximumNumberFish = 10;
-        private const int MinimumNumberFish = 0;
+        private const string NumberAddFish = "1";
+        private const string NumberAddFishes = "2";
+        private const string NumberRemoveFish = "3";
+        private const string NumberRemoveFishes = "4";
+        private const string Exit = "5";
+        private int _maximumNumberFish = 10;
+        private int _minimumNumberFish = 0;
         private List<Fish> _fishes = new List<Fish>();
+        private bool _isWork = true;
+        private bool _isCorrectValue = false;
 
         public void Start()
         {
-            while (true)
+            while (_isWork)
             {
                 if (_fishes.Count != 0)
                 {
-                    InfoShow();
+                    ShowInfo();
                 }
                 else
                 {
@@ -39,9 +41,9 @@ namespace Aquarium
                 Console.WriteLine($"Для добавления одной рыбки в аквариум напишите {NumberAddFish},для добаление нескольких {NumberAddFishes}");
                 Console.WriteLine($"Для того чтоб убрать рыбу из аквариума {NumberRemoveFish},для того чтоб убрать нескольких {NumberRemoveFishes}");
                 Console.WriteLine($"Для мониторинга за рыбами нажмите на любую клавишу. Для выхода напишите {Exit}");
-                int.TryParse(Console.ReadLine(), out int input);
+                CheckStatus();
 
-                switch (input)
+                switch (Console.ReadLine())
                 {
                     case NumberAddFish:
                         AddFish();
@@ -55,132 +57,124 @@ namespace Aquarium
                     case NumberRemoveFishes:
                         PullFishes();
                         break;
-                    default:
-                        TimeSkip();
+                    case Exit:
+                        _isWork = false;
                         break;
-                }
-
-                if (input == Exit)
-                {
-                    break;
+                    default:
+                        SkipTime();
+                        break;
                 }
             }
         }
 
         private void AddFish()
         {
-            if (_fishes.Count < MaximumNumberFish)
+            if (_isCorrectValue == true)
             {
-                bool isCorrectInput = true;
+                Console.WriteLine("Введите число здоровья рыбы");
+                bool isCorrectHealth = int.TryParse(Console.ReadLine(), out int health);
+                Console.WriteLine("Введите сколько лет рыбе");
+                bool isCorrectAge = int.TryParse(Console.ReadLine(), out int age);
 
-                while (isCorrectInput)
+                if ((isCorrectHealth & isCorrectAge) == true)
                 {
-                    Console.WriteLine("Введите число здоровья рыбы");
-                    bool isCorrectHealth = int.TryParse(Console.ReadLine(), out int health);
-                    Console.WriteLine("Введите сколько лет рыбе");
-                    bool isCorrectAge = int.TryParse(Console.ReadLine(), out int age);
-
-                    if ((isCorrectHealth & isCorrectAge) == true)
-                    {
-                        Fish fish = new Fish(health, age);
-                        _fishes.Add(fish);
-                        isCorrectInput = false;
-                        Console.WriteLine("Вы добавили рыбку в аквариум");
-                    }
-                    else
-                    {
-                        Console.Clear();
-                        Console.WriteLine("Вы вели не корректное значение числа здоровья или сколько лет рыбке");
-                    }
+                    Fish fish = new Fish(health, age);
+                    _fishes.Add(fish);
+                    _isCorrectValue = true;
+                    Console.WriteLine("Вы добавили рыбку в аквариум");
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Вы вели не корректное значение числа здоровья или сколько лет рыбке");
                 }
             }
             else
             {
-                ErrorMessenge(true);
+                Console.WriteLine("Вы пытаетесь запихнуть больше рыбок чем влазит в аквариум так нельзя");
             }
         }
 
         private void AddFishes()
         {
-            Console.WriteLine($"Введите количество рыбок которых хотите добавить, максимальное кол-во место для рыбок в аквариуме {MaximumNumberFish - _fishes.Count}");
-            int.TryParse(Console.ReadLine(), out int numberAddFish);
-
-            if ((numberAddFish + _fishes.Count) <= MaximumNumberFish)
+            if (_isCorrectValue == true)
             {
-                for (int i = 0; i < numberAddFish; i++)
+                Console.WriteLine($"Введите количество рыбок которых хотите добавить, максимальное кол-во место для рыбок в аквариуме {_maximumNumberFish - _fishes.Count}");
+                int.TryParse(Console.ReadLine(), out int numberAddFish);
+
+                if ((numberAddFish + _fishes.Count) <= _maximumNumberFish)
                 {
-                    AddFish();
+                    for (int i = 0; i < numberAddFish; i++)
+                    {
+                        AddFish();
+                    }
                 }
             }
             else
             {
-                Console.Clear();
-                Console.WriteLine("Вы  вели не корректное число или Вы пытаеть добавить рыбок больше чем влезает в аквариуму");
+                Console.WriteLine("Вы пытаетесь запихнуть больше рыбок чем влазит в аквариум так нельзя");
+            }
+        }
+
+        private void CheckStatus()
+        {
+            if (_fishes.Count < _maximumNumberFish || _fishes.Count != 0)
+            {
+                _isCorrectValue = true;
+            }
+            else
+            {
+                _isCorrectValue = false;
             }
         }
 
         private void PullFish()
         {
-            if (_fishes.Count != 0)
+            if (_isCorrectValue == true)
             {
-                bool isCorrectNumber = true;
-                InfoShow();
+                ShowInfo();
                 Console.WriteLine("Введите номер рыбки,которую хотите вытащить из аквариума");
+                int.TryParse(Console.ReadLine(), out int index);
 
-                while (isCorrectNumber)
+                if ((_minimumNumberFish < index) & (index <= _fishes.Count))
                 {
-                    int.TryParse(Console.ReadLine(), out int index);
-
-                    if ((MinimumNumberFish < index) & (index <= _fishes.Count))
-                    {
-                        _fishes.RemoveAt(index - 1);
-                        isCorrectNumber = false;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Вы вели не корректный номер рыбки");
-                    }
+                    _fishes.RemoveAt(index - 1);
                 }
-            }
-            else
-            {
-                ErrorMessenge(false);
+                else
+                {
+                    Console.WriteLine("Вы вели не корректный номер рыбки");
+                }
             }
         }
 
         private void PullFishes()
         {
-            if (_fishes.Count != 0)
+            if (_isCorrectValue == true)
             {
-                bool isWork = true;
+                Console.WriteLine($"Введите кол-во рыб которых вы хотите вытащить из аквариума,всего рыбок в аквариуме {_fishes.Count}");
+                int.TryParse(Console.ReadLine(), out int numberFish);
 
-                while (isWork)
+                if ((_fishes.Count - numberFish) >= _minimumNumberFish)
                 {
-                    Console.WriteLine($"Введите кол-во рыб которых вы хотите вытащить из аквариума,всего рыбок в аквариуме {_fishes.Count}");
-                    int.TryParse(Console.ReadLine(), out int numberFish);
-
-                    if ((_fishes.Count - numberFish) >= MinimumNumberFish)
+                    for (int i = 0; i < numberFish; i++)
                     {
-                        for (int i = 0; i < numberFish; i++)
-                        {
-                            PullFish();
-                        }
+                        PullFish();
+                    }
 
-                        isWork = false;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Вы  вели не корректное число");
-                    }
+                    _isCorrectValue = false;
+                }
+                else
+                {
+                    Console.WriteLine("Вы  вели не корректное число");
                 }
             }
             else
             {
-                ErrorMessenge(false);
+                Console.WriteLine("Вы пытаетесь вытащить больше рыбок чем есть в наличии в аквариуме");
             }
         }
 
-        private void TimeSkip()
+        private void SkipTime()
         {
             int damageHealth = 2;
 
@@ -190,42 +184,28 @@ namespace Aquarium
             }
         }
 
-        private void InfoShow()
+        private void ShowInfo()
         {
             for (int i = 0; i < _fishes.Count; i++)
             {
-                Console.WriteLine($"Номер - {i + 1}, {_fishes[i].NumberAge} число лет {_fishes[i].Health} осталось жизней, Состояние - {_fishes[i].status} ");
-            }
-        }
-
-        private void ErrorMessenge(bool isFullAquarium)
-        {
-            if (isFullAquarium == true)
-            {
-                Console.Clear();
-                Console.WriteLine("У вас переполнены аквариум");
-            }
-            else if (isFullAquarium == false)
-            {
-                Console.Clear();
-                Console.WriteLine("Вы пытаетесь забрать рыбок больше чем вы имеете попробуйте ещё раз");
+                Console.WriteLine($"Номер - {i + 1}, {_fishes[i].NumberAge} число лет {_fishes[i].Health} осталось жизней, Состояние - {_fishes[i].Status} ");
             }
         }
     }
 
     class Fish
     {
-        public bool _isAlive;
-        public string status;
+        private bool _isAlive;
 
         public Fish(int health, int age)
         {
             Health = health;
             NumberAge = age;
             _isAlive = true;
-            status = "Жив";
+            Status = "Жив";
         }
 
+        public string Status { get; private set; }
         public int Health { get; private set; }
         public int NumberAge { get; private set; }
 
@@ -238,7 +218,7 @@ namespace Aquarium
                 if (Health <= 0)
                 {
                     _isAlive = false;
-                    status = "Мертв";
+                    Status = "Мертв";
                     return;
                 }
 
